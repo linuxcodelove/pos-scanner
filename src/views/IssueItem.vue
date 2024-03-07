@@ -44,7 +44,7 @@
           </v-row>
           <v-row>
             <v-col cols="5" class="px-0">
-              <v-btn flat
+              <v-btn flat @click="findProductWeight"
                 >Weight<v-icon
                   icon="mdi-weight"
                   class="ml-2"
@@ -81,17 +81,25 @@
         </v-card-actions>
       </v-card-text>
     </v-card>
+    <app-bluetooth
+      v-if="connectBt"
+      @connected="findProductWeight"
+    ></app-bluetooth>
   </div>
 </template>
 
 <script>
 import { ref, reactive, onBeforeMount } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useBluetooth } from "@/hooks/bluetooth.js";
 import AppScanner from "@/components/Scanner.vue";
+import AppBluetooth from "@/components/AppBluetooth.vue";
+
 export default {
   name: "IssueItem",
   components: {
     AppScanner,
+    AppBluetooth,
   },
   setup() {
     const route = useRoute();
@@ -108,16 +116,34 @@ export default {
       router.push({ name: "home" });
     }
 
+    const connectBt = ref(false);
+
+    function findProductWeight() {
+      if (!isBtEnabled || !isBtConnected) {
+        connectBt.value = true;
+        return;
+      }
+
+      connectBt.value = false;
+      console.log("connectedddddddddddddddddddddddddddddd");
+    }
+
     onBeforeMount(() => {
       // get Api using route.params.id
     });
+
+    const { isBtEnabled, isBtConnected } = useBluetooth();
 
     return {
       showScanner,
       product,
       route,
+      connectBt,
       onDecode,
       submit,
+      findProductWeight,
+      isBtEnabled,
+      isBtConnected,
     };
   },
 };
