@@ -8,7 +8,7 @@ const customTheme = {
   colors: {
     background: "#FFF",
     surface: "#FFF",
-    primary: "#FFF",
+    primary: "#ff5a10",
     secondary: "#FFF",
     error: "#f44336",
     info: "#2196F3",

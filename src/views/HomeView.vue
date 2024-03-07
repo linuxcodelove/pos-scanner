@@ -14,9 +14,11 @@
       </template>
 
       <v-data-table :headers="headers" :items="items" :search="search">
-        <template v-slot:[`item.issue`]="{}">
+        <template v-slot:[`item.issue`]="{ item }">
           <div>
-            <v-btn @click="issue">Issue</v-btn>
+            <v-btn icon="mdi-arrow-right-thin" @click="issue(item.id)" flat>
+              <v-icon color="primary"></v-icon>
+            </v-btn>
           </div>
         </template>
       </v-data-table>
@@ -26,11 +28,12 @@
 
 <script>
 import { ref } from "vue";
-
+import { useRouter } from "vue-router";
 export default {
   name: "HomeView",
   setup() {
-    let search = ref("");
+    const router = useRouter();
+
     const items = [
       {
         name: "African Elephant",
@@ -52,8 +55,12 @@ export default {
       },
       { key: "issue", title: "Issue" },
     ];
+    const search = ref("");
 
-    function issue() {}
+    function issue(id) {
+      router.push({ name: "issue", params: { id } });
+    }
+
     return {
       search,
       items,

@@ -47,6 +47,7 @@
 
 <script>
 import { ref, reactive } from "vue";
+import { useRouter } from "vue-router";
 import { rules } from "@/helpers/validation.js";
 export default {
   name: "AppLogin",
@@ -56,9 +57,10 @@ export default {
       password: "welcome123",
     });
     let formValid = ref(false);
+    const router = useRouter();
 
     function login() {
-      // $router.push({ name: "home" });
+      router.push({ name: "home" });
     }
     return {
       form,
