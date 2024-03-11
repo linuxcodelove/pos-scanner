@@ -81,10 +81,10 @@
         </v-card-actions>
       </v-card-text>
     </v-card>
-    <app-bluetooth
+    <!-- <app-bluetooth
       v-if="connectBt"
       @connected="findProductWeight"
-    ></app-bluetooth>
+    ></app-bluetooth> -->
   </div>
 </template>
 
@@ -93,19 +93,22 @@ import { ref, reactive, onBeforeMount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useBluetooth } from "@/hooks/bluetooth.js";
 import AppScanner from "@/components/Scanner.vue";
-import AppBluetooth from "@/components/AppBluetooth.vue";
+// import AppBluetooth from "@/components/AppBluetooth.vue";
+import useBtStore from "@/store/bluetooth";
+// import { mapState } from "pinia";
 
 export default {
   name: "IssueItem",
   components: {
     AppScanner,
-    AppBluetooth,
+    // AppBluetooth,
   },
   setup() {
     const route = useRoute();
     const router = useRouter();
     const product = reactive({});
     const showScanner = ref(false);
+    const btStore = useBtStore();
 
     function onDecode(res) {
       product.id = res;
@@ -119,17 +122,20 @@ export default {
     const connectBt = ref(false);
 
     function findProductWeight() {
-      if (!isBtEnabled || !isBtConnected) {
-        connectBt.value = true;
-        return;
-      }
-
-      connectBt.value = false;
-      console.log("connectedddddddddddddddddddddddddddddd");
+      console.log(btStore.bluetoothEnabled, "enabled");
+      console.log(btStore.bluetoothConnected, "connected");
+      // if (!btStore.bluetoothEnabled || !btStore.bluetoothConnected) {
+      //   connectBt.value = true;
+      //   return;
+      // }
+      // connectBt.value = false;
+      // console.log("connectedddddddddddddddddddddddddddddd");
     }
 
     onBeforeMount(() => {
       // get Api using route.params.id
+      isBtEnabled();
+      isBtConnected();
     });
 
     const { isBtEnabled, isBtConnected } = useBluetooth();

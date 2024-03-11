@@ -1,22 +1,23 @@
+import useBtStore from "@/store/bluetooth";
 export const useBluetooth = () => {
   function isBtEnabled() {
     window.bluetoothSerial.isEnabled(
-      () => true,
-      () => false
+      () => (useBtStore.bluetoothEnabled = true),
+      () => (useBtStore.bluetoothEnabled = false)
     );
   }
 
   function getBtDevicesList() {
     window.bluetoothSerial.list(
-      (devices) => devices,
-      () => []
+      (devices) => (useBtStore.state.devicesList = devices),
+      () => (useBtStore.state.devicesList = [])
     );
   }
 
   function isBtConnected() {
     window.bluetoothSerial.isConnected(
-      () => true,
-      () => false
+      () => (useBtStore.bluetoothConnected = true),
+      () => (useBtStore.bluetoothConnected = false)
     );
   }
 
