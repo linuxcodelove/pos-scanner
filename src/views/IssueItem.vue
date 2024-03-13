@@ -81,19 +81,20 @@
         </v-card-actions>
       </v-card-text>
     </v-card>
-    <!-- <app-bluetooth
+    <app-bluetooth
       v-if="connectBt"
-      @connected="findProductWeight"
-    ></app-bluetooth> -->
+      :message="message"
+      @connected="message = null"
+    ></app-bluetooth>
   </div>
 </template>
 
 <script>
-import { ref, reactive, onBeforeMount } from "vue";
+import { ref, reactive, onBeforeMount, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useBluetooth } from "@/hooks/bluetooth.js";
 import AppScanner from "@/components/Scanner.vue";
-// import AppBluetooth from "@/components/AppBluetooth.vue";
+import AppBluetooth from "@/components/AppBluetooth.vue";
 import useBtStore from "@/store/bluetooth";
 // import { mapState } from "pinia";
 
@@ -101,7 +102,7 @@ export default {
   name: "IssueItem",
   components: {
     AppScanner,
-    // AppBluetooth,
+    AppBluetooth,
   },
   setup() {
     const route = useRoute();
@@ -119,17 +120,21 @@ export default {
       router.push({ name: "home" });
     }
 
-    const connectBt = ref(false);
+    const connectBt = computed(() => {
+      return !btStore.bluetoothEnabled || !btStore.bluetoothConnected;
+    });
+
+    const message = computed(() =>
+      !btStore.bluetoothEnabled
+        ? "Bluetooth is not Enabled! Please enable Bluetooth"
+        : !btStore.bluetoothConnected
+        ? "Please pair bluetooth with the appropriate device!"
+        : null
+    );
 
     function findProductWeight() {
-      console.log(btStore.bluetoothEnabled, "enabled");
-      console.log(btStore.bluetoothConnected, "connected");
-      // if (!btStore.bluetoothEnabled || !btStore.bluetoothConnected) {
-      //   connectBt.value = true;
-      //   return;
-      // }
-      // connectBt.value = false;
-      // console.log("connectedddddddddddddddddddddddddddddd");
+      if (connectBt.value) return;
+      console.log("connected");
     }
 
     onBeforeMount(() => {
@@ -145,6 +150,7 @@ export default {
       product,
       route,
       connectBt,
+      message,
       onDecode,
       submit,
       findProductWeight,

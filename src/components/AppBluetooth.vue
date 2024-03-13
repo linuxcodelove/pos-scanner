@@ -5,8 +5,8 @@
       :message="message"
       title="Bluetooth"
       type="error"
-      @close="checkBluetooth"
     ></alert-dialog>
+    <!-- @close="checkBluetooth" -->
 
     <v-list v-if="deviceList.length">
       <v-list-item
@@ -22,56 +22,56 @@
 
 <script>
 import { useBluetooth } from "@/hooks/bluetooth.js";
-import { ref, onBeforeMount } from "vue";
+import { ref, onBeforeMount, computed, watch } from "vue";
 import AlertDialog from "./AlertDialog.vue";
+import useBtStore from "@/store/bluetooth";
+
 export default {
   components: {
     AlertDialog,
   },
+  props: ["message"],
   setup(_, context) {
     const enabled = ref(false);
     const connected = ref(false);
-    const message = ref(null);
+    const btStore = useBtStore();
 
     onBeforeMount(() => {
-      checkBluetooth();
+      // checkBluetooth();
+    });
+
+    const deviceList = computed(() => {
+      console.log(btStore.devicesList, "list");
+      return btStore.devicesList;
+    });
+
+    const getDevice = computed(
+      () => btStore.bluetoothEnabled && !btStore.bluetoothConnected
+    );
+
+    watch(getDevice, () => {
+      getBtDevicesList();
     });
 
     function deviceSelected(id) {
-      if (!connectDevice(id)) {
-        message.value = "Device Not connected!";
-        return;
-      }
-
-      context.emit("connected");
+      connectDevice(id, () => context.emit("connected"));
     }
 
-    const deviceList = ref([]);
-    function checkBluetooth() {
-      enabled.value = isBtEnabled();
-      connected.value = isBtConnected();
-      if (!enabled.value) {
-        message.value = "Bluetooth is not Enabled! Please enable Bluetooth";
-        return;
-      }
-      if (!connected.value) {
-        message.value = "Please pair bluetooth with the appropriate device!";
-        deviceList.value = getBtDevicesList();
-        return;
-      }
-    }
+    // function checkBluetooth() {
+    //   if (btStore.bluetoothEnabled && !btStore.bluetoothConnected) {
+    //   }
+    // }
 
     const { isBtEnabled, isBtConnected, getBtDevicesList, connectDevice } =
       useBluetooth();
     return {
       enabled,
       connected,
-      message,
       deviceList,
       isBtEnabled,
       isBtConnected,
       getBtDevicesList,
-      checkBluetooth,
+      // checkBluetooth,
       connectDevice,
       deviceSelected,
     };
