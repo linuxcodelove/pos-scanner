@@ -15,101 +15,69 @@
   </div>
 </template>
 
-<script>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+<script setup>
+import { ref, onMounted, onBeforeUnmount, defineEmits } from "vue";
 import _camera from "@/hooks/camInitialSetup.js";
 import { useScanner } from "@/hooks/scanner.js";
 
-export default {
-  name: "Scanner",
-  emits: ["decode", "close", "error"],
-  setup(_, context) {
-    const alertMsg = ref(null);
+const emit = defineEmits(["decode", "close", "error"]);
+const alertMsg = ref(null);
 
-    onMounted(() => {
-      if (!alertMsg.value) {
-        init();
-        start();
-      }
-    });
+onMounted(() => {
+  if (!alertMsg.value) {
+    init();
+    start();
+  }
+});
 
-    onBeforeUnmount(() => {
-      codeReader.reset();
-    });
+onBeforeUnmount(() => {
+  codeReader.reset();
+});
 
-    function start() {
-      codeReader.decodeFromVideoDevice(
-        undefined,
-        scanner.value,
-        (result, err) => {
-          if (result) {
-            close(true, result.text);
-          } else {
-            context.emit("error", err);
-          }
-        }
-      );
+const start = () => {
+  codeReader.decodeFromVideoDevice(undefined, scanner.value, (result, err) => {
+    if (result) {
+      close(true, result.text);
+    } else {
+      emit("error", err);
     }
-
-    function close(hasResult, result = null) {
-      alertMsg.value = null;
-      const stream = scanner.value.srcObject;
-      stream.getTracks().forEach((track) => {
-        track.stop();
-      });
-      if (hasResult) context.emit("decode", result);
-      else context.emit("close");
-    }
-
-    function init() {
-      supported.value = _camera.supported();
-      if (!supported.value) {
-        alertMsg.value =
-          "camera is not supported, or there is no camera detected/connected";
-        return;
-      }
-      _camera
-        .count()
-        .then((cams) => {
-          camCount.value = cams;
-          navigator.mediaDevices
-            .getUserMedia(_camera.constraints(facingMode.value))
-            .then((stream) => {
-              scanner.value.srcObject = stream;
-            });
-        })
-        .catch((err) => {
-          alertMsg.value = "unable to get cam access";
-          console.error("getUserMedia() error: ", err);
-        });
-    }
-
-    const {
-      supported,
-      camCount,
-      facingMode,
-      codeReader,
-      isMediaStreamAPISupported,
-      frontCam,
-      scanner,
-      switchCamera,
-    } = useScanner();
-
-    return {
-      supported,
-      camCount,
-      facingMode,
-      alertMsg,
-      codeReader,
-      isMediaStreamAPISupported,
-      frontCam,
-      scanner,
-      start,
-      switchCamera,
-      init,
-    };
-  },
+  });
 };
+
+const close = (hasResult, result = null) => {
+  alertMsg.value = null;
+  const stream = scanner.value.srcObject;
+  stream.getTracks().forEach((track) => {
+    track.stop();
+  });
+  if (hasResult) emit("decode", result);
+  else emit("close");
+};
+
+const init = () => {
+  supported.value = _camera.supported();
+  if (!supported.value) {
+    alertMsg.value =
+      "camera is not supported, or there is no camera detected/connected";
+    return;
+  }
+  _camera
+    .count()
+    .then((cams) => {
+      camCount.value = cams;
+      navigator.mediaDevices
+        .getUserMedia(_camera.constraints(facingMode.value))
+        .then((stream) => {
+          scanner.value.srcObject = stream;
+        });
+    })
+    .catch((err) => {
+      alertMsg.value = "unable to get cam access";
+      console.error("getUserMedia() error: ", err);
+    });
+};
+
+const { supported, camCount, facingMode, codeReader, scanner } = useScanner();
 </script>
 
 <style scoped>

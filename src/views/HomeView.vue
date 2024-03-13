@@ -26,47 +26,36 @@
   </v-container>
 </template>
 
-<script>
+<script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-export default {
-  name: "HomeView",
-  setup() {
-    const router = useRouter();
+// name: "HomeView",
+const router = useRouter();
 
-    const items = [
-      {
-        name: "African Elephant",
-        id: 1,
-      },
-      {
-        name: "African Lion",
-        id: 2,
-      },
-      {
-        name: "Tiger",
-        id: 3,
-      },
-    ];
-    const headers = [
-      {
-        key: "name",
-        title: "Name",
-      },
-      { key: "issue", title: "Issue" },
-    ];
-    const search = ref("");
-
-    function issue(id) {
-      router.push({ name: "issue", params: { id } });
-    }
-
-    return {
-      search,
-      items,
-      headers,
-      issue,
-    };
+const items = [
+  {
+    name: "African Elephant",
+    id: 1,
   },
+  {
+    name: "African Lion",
+    id: 2,
+  },
+  {
+    name: "Tiger",
+    id: 3,
+  },
+];
+const headers = [
+  {
+    key: "name",
+    title: "Name",
+  },
+  { key: "issue", title: "Issue" },
+];
+const search = ref("");
+
+const issue = (id) => {
+  router.push({ name: "issue", query: { id } });
 };
 </script>

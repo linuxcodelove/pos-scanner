@@ -81,84 +81,88 @@
         </v-card-actions>
       </v-card-text>
     </v-card>
-    <app-bluetooth
-      v-if="connectBt"
-      :message="message"
-      @connected="message = null"
-    ></app-bluetooth>
+    <v-snackbar v-model="snackbar"> {{ message }}</v-snackbar>
+    <v-dialog fullscreen v-model="dialog">
+      <p>{{ message }}</p>
+      <v-list v-if="deviceList.length">
+        <v-list-item
+          v-for="device in deviceList"
+          :key="device.id"
+          :title="device.name"
+          :subtitle="device.id"
+          @click="deviceSelected(device.id)"
+        ></v-list-item>
+      </v-list>
+    </v-dialog>
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, reactive, onBeforeMount, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useBluetooth } from "@/hooks/bluetooth.js";
 import AppScanner from "@/components/Scanner.vue";
-import AppBluetooth from "@/components/AppBluetooth.vue";
 import useBtStore from "@/store/bluetooth";
-// import { mapState } from "pinia";
 
-export default {
-  name: "IssueItem",
-  components: {
-    AppScanner,
-    AppBluetooth,
-  },
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const product = reactive({});
-    const showScanner = ref(false);
-    const btStore = useBtStore();
+const route = useRoute();
+const router = useRouter();
+const product = reactive({});
+const showScanner = ref(false);
+const btStore = useBtStore();
 
-    function onDecode(res) {
-      product.id = res;
-      showScanner.value = false;
-    }
-
-    function submit() {
-      router.push({ name: "home" });
-    }
-
-    const connectBt = computed(() => {
-      return !btStore.bluetoothEnabled || !btStore.bluetoothConnected;
-    });
-
-    const message = computed(() =>
-      !btStore.bluetoothEnabled
-        ? "Bluetooth is not Enabled! Please enable Bluetooth"
-        : !btStore.bluetoothConnected
-        ? "Please pair bluetooth with the appropriate device!"
-        : null
-    );
-
-    function findProductWeight() {
-      if (connectBt.value) return;
-      console.log("connected");
-    }
-
-    onBeforeMount(() => {
-      // get Api using route.params.id
-      isBtEnabled();
-      isBtConnected();
-    });
-
-    const { isBtEnabled, isBtConnected } = useBluetooth();
-
-    return {
-      showScanner,
-      product,
-      route,
-      connectBt,
-      message,
-      onDecode,
-      submit,
-      findProductWeight,
-      isBtEnabled,
-      isBtConnected,
-    };
-  },
+const onDecode = (res) => {
+  product.id = res;
+  showScanner.value = false;
 };
+
+const submit = () => {
+  console.log(product, "product");
+  router.push({ name: "home" });
+};
+
+const snackbar = ref(false);
+const message = ref(null);
+const dialog = ref(false);
+
+const deviceList = computed(() => {
+  return btStore.devicesList;
+});
+
+const findProductWeight = () => {
+  isBtEnabled();
+  isBtConnected();
+  if (!btStore.bluetoothEnabled) {
+    message.value = "Bluetooth is not Enabled! Please enable Bluetooth";
+    snackbar.value = true;
+  } else if (!btStore.bluetoothConnected) {
+    getBtDevicesList();
+    message.value = "Please pair bluetooth with the appropriate device!";
+    dialog.value = true;
+  } else {
+    getData((result) => {
+      product.weight = result;
+    });
+  }
+};
+
+const deviceSelected = (id) => {
+  dialog.value = false;
+  connectDevice(id, (result) => {
+    message.value = result ? "Device paired successfully!" : "Pairing Failed!";
+    snackbar.value = true;
+    isBtConnected();
+  });
+};
+
+onBeforeMount(() => {
+  // get Api using route.params.id
+  console.log(route.query, "query");
+  isBtEnabled();
+  isBtConnected();
+});
+
+const { isBtEnabled, isBtConnected, getBtDevicesList, connectDevice, getData } =
+  useBluetooth();
 </script>
 
 <style></style>

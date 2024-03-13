@@ -2,46 +2,55 @@ import useBtStore from "@/store/bluetooth";
 export const useBluetooth = () => {
   const store = useBtStore();
   const btSerial = window.bluetoothSerial;
-  function isBtEnabled() {
+
+  const isBtEnabled = () => {
     btSerial.isEnabled(
       () => (store.bluetoothEnabled = true),
       () => (store.bluetoothEnabled = false)
     );
-  }
+  };
 
-  function getBtDevicesList() {
+  const getBtDevicesList = () => {
     btSerial.list(
       (devices) => (store.devicesList = devices),
       () => (store.devicesList = [])
     );
-  }
+  };
 
-  function isBtConnected() {
+  const isBtConnected = () => {
     btSerial.isConnected(
       () => (store.bluetoothConnected = true),
       () => (store.bluetoothConnected = false)
     );
-  }
+  };
 
-  function connectDevice(id, cb) {
-    console.log(cb, "callback");
+  const connectDevice = (id, cb) => {
     btSerial.connect(
       id,
-      () => cb(),
-      () => false
+      () => cb(true),
+      () => cb(false)
     );
-  }
+  };
 
-  // window.bluetoothSerial.subscribe(
-  //   "\n",
-  //   (data) => console.log(data),
-  //     () => false
-  // );
+  const getData = (cb) => {
+    btSerial.subscribe(
+      "\n",
+      (data) => {
+        const weight = Number(data.split(" ")[3]);
+        if (weight > 0) {
+          btSerial.unsubscribe();
+          cb(data);
+        }
+      },
+      () => cb("0.0")
+    );
+  };
 
   return {
     isBtEnabled,
     getBtDevicesList,
     isBtConnected,
     connectDevice,
+    getData,
   };
 };

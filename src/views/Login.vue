@@ -45,30 +45,20 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { rules } from "@/helpers/validation.js";
-export default {
-  name: "AppLogin",
-  setup() {
-    const form = reactive({
-      email: "admin@bobsbar.in",
-      password: "welcome123",
-    });
-    let formValid = ref(false);
-    const router = useRouter();
 
-    function login() {
-      router.push({ name: "home" });
-    }
-    return {
-      form,
-      formValid,
-      rules,
-      login,
-    };
-  },
+const form = reactive({
+  email: "admin@bobsbar.in",
+  password: "welcome123",
+});
+let formValid = ref(false);
+const router = useRouter();
+
+const login = () => {
+  router.push({ name: "home" });
 };
 </script>
 

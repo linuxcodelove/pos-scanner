@@ -14,13 +14,13 @@ export const useScanner = () => {
 
   const frontCam = computed(() => facingMode.value === "environment");
 
-  function switchCamera() {
+  const switchCamera = () => {
     if (facingMode.value === "environment") {
       facingMode.value = "user";
     } else {
       facingMode.value = "environment";
     }
-  }
+  };
 
   return {
     supported,
