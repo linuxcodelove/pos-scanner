@@ -83,7 +83,9 @@
     </v-card>
     <v-snackbar v-model="snackbar"> {{ message }}</v-snackbar>
     <v-dialog fullscreen v-model="dialog">
-      <p>{{ message }}</p>
+      <p>
+        {{ message }}
+      </p>
       <v-list v-if="deviceList.length">
         <v-list-item
           v-for="device in deviceList"
@@ -135,9 +137,10 @@ const findProductWeight = () => {
     message.value = "Bluetooth is not Enabled! Please enable Bluetooth";
     snackbar.value = true;
   } else if (!btStore.bluetoothConnected) {
-    getBtDevicesList();
-    message.value = "Please pair bluetooth with the appropriate device!";
-    dialog.value = true;
+    getBtDevicesList(() => {
+      message.value = "Please pair bluetooth with the appropriate device!";
+      dialog.value = true;
+    });
   } else {
     getData((result) => {
       product.weight = result;

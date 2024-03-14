@@ -10,10 +10,16 @@ export const useBluetooth = () => {
     );
   };
 
-  const getBtDevicesList = () => {
+  const getBtDevicesList = (cb) => {
     btSerial.list(
-      (devices) => (store.devicesList = devices),
-      () => (store.devicesList = [])
+      (devices) => {
+        store.devicesList = devices;
+        cb();
+      },
+      () => {
+        store.devicesList = [];
+        cb();
+      }
     );
   };
 

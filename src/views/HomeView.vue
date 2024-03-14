@@ -29,27 +29,21 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import useMenuItemStore from "@/store/menuItem";
 // name: "HomeView",
 const router = useRouter();
+const itemStore = useMenuItemStore();
 
-const items = [
-  {
-    name: "African Elephant",
-    id: 1,
-  },
-  {
-    name: "African Lion",
-    id: 2,
-  },
-  {
-    name: "Tiger",
-    id: 3,
-  },
-];
+const items = itemStore.items;
+
 const headers = [
   {
     key: "name",
     title: "Name",
+  },
+  {
+    key: "type",
+    title: "Type",
   },
   { key: "issue", title: "Issue" },
 ];
